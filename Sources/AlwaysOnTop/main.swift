@@ -1,52 +1,48 @@
 import Cocoa
 
 class AppDelegate: NSObject, NSApplicationDelegate {
-    var window: NSWindow!
-    var isAlwaysOnTop = false
+    var statusItem: NSStatusItem!
 
     func applicationDidFinishLaunching(_ aNotification: Notification) {
-        // Create the window
-        let windowRect = NSRect(x: 100, y: 100, width: 300, height: 200)
-        window = NSWindow(
-            contentRect: windowRect, styleMask: [.titled, .closable, .miniaturizable, .resizable],
-            backing: .buffered, defer: false)
-        window.title = "Toggle Always on Top"
-        window.makeKeyAndOrderFront(nil)
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        if let button = statusItem.button {
+            button.image = NSImage(
+                systemSymbolName: "pin", accessibilityDescription: "Toggle Always on Top")
+        }
 
-        // Create a button
-        let button = NSButton(frame: NSRect(x: 0, y: 0, width: 200, height: 40))
-        button.title = "Toggle Always on Top"
-        button.bezelStyle = .rounded
-        button.target = self
-        button.action = #selector(toggleAlwaysOnTop)
+        setupMenu()
+    }
 
-        // Center the button in the window
-        button.frame.origin = NSPoint(
-            x: (window.contentView!.frame.width - button.frame.width) / 2,
-            y: (window.contentView!.frame.height - button.frame.height) / 2
-        )
-
-        // Add the button to the window
-        window.contentView?.addSubview(button)
+    func setupMenu() {
+        let menu = NSMenu()
+        menu.addItem(
+            NSMenuItem(
+                title: "Toggle Always on Top", action: #selector(toggleAlwaysOnTop),
+                keyEquivalent: ""))
+        menu.addItem(NSMenuItem.separator())
+        menu.addItem(
+            NSMenuItem(
+                title: "Quit", action: #selector(NSApplication.terminate(_:)), keyEquivalent: "q"))
+        statusItem.menu = menu
     }
 
     @objc func toggleAlwaysOnTop() {
-        isAlwaysOnTop.toggle()
-        if isAlwaysOnTop {
-            window.level = .floating
-            print("Window is now always on top")
+        if let window = getActiveWindow() {
+            let isAlwaysOnTop = window.level == .floating
+            window.level = isAlwaysOnTop ? .normal : .floating
+            print("Always on top: \(!isAlwaysOnTop)")
         } else {
-            window.level = .normal
-            print("Window is no longer always on top")
+            print("no active window just yet")
         }
     }
 
-    func applicationWillTerminate(_ aNotification: Notification) {
-        // Insert code here to tear down your application
+    func getActiveWindow() -> NSWindow? {
+        // Implement logic to get the active window
+        // This will require additional permissions and possibly private APIs
+        return nil
     }
 }
 
-// Create and run the application
 let app = NSApplication.shared
 let delegate = AppDelegate()
 app.delegate = delegate
