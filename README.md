@@ -8,3 +8,7 @@ window.
 The goal of this project is to use Swift to build an app that can run as a menubar item that, when
 clicked, will toggle the "always on top" property of the currently active window.
 
+# Todos:
+
+- use https://github.com/jahwag/ClaudeSync to automatically sync project files to claude.ai.
+
