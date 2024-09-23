@@ -1,2 +1,10 @@
-# always-on-top
-A test to see if I can toggle always on top for any app window
+# Overview
+
+I like Firefox's PIP video feature, but was annoyed that there was no way to toggle the "always on
+top" property of the PIP window. After doing some searching I didn't really see any utilities that
+could easily, and without a lot of pomp and circumstance, toggle this property for any aribtrary
+window.
+
+The goal of this project is to use Swift to build an app that can run as a menubar item that, when
+clicked, will toggle the "always on top" property of the currently active window.
+
