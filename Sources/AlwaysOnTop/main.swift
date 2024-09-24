@@ -30,21 +30,31 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func toggleAlwaysOnTop() {
         print("toggleAlwaysOnTop")
-        print("Get active window extra...")
         if let (win, info) = getActiveWindowExtra() {
-            print("win : \(win)")
             print("info: \(info)")
-
-            // TODO: toggle always on top
+            let value = isAlwaysOnTop(win)
+            let newValue = !value
+            let err = AXUIElementSetAttributeValue(
+                win, "AXSubrole" as CFString,
+                newValue ? "AXSystemFloatingWindow" as CFTypeRef : "" as CFTypeRef)
+            if err == .success {
+                print("Always on top state changed to: \(newValue)")
+            } else {
+                print("Failed to change state: \(err)")
+            }
         } else {
-            print("No active window found in extras")
+            print("No active window found")
         }
     }
 
     func isAlwaysOnTop(_ window: AXUIElement) -> Bool {
         var value: AnyObject?
         let err = AXUIElementCopyAttributeValue(window, "AXSubrole" as CFString, &value)
+        if err != .success {
+            print("could not get ax subrole: \(err)")
+        }
         if err == .success, let subrole = value as? String {
+            print("subrole: \(subrole)")
             return subrole == "AXSystemFloatingWindow"
         }
         return false
