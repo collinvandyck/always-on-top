@@ -3,6 +3,7 @@ import PackageDescription
 
 let package = Package(
     name: "AlwaysOnTop",
+    defaultLocalization: "en",
     platforms: [.macOS(.v11)],
     products: [
         .executable(name: "AlwaysOnTop", targets: ["AlwaysOnTop"])
@@ -11,9 +12,7 @@ let package = Package(
     targets: [
         .target(
             name: "AlwaysOnTop",
-            dependencies: [],
-            resources: []
+            dependencies: []
         )
     ]
 )
-

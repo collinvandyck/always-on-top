@@ -1,3 +1,4 @@
+import ApplicationServices
 import Cocoa
 
 class AppDelegate: NSObject, NSApplicationDelegate {
@@ -11,6 +12,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         setupMenu()
+        checkAccessibilityPermissions()
     }
 
     func setupMenu() {
@@ -28,18 +30,53 @@ class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc func toggleAlwaysOnTop() {
         if let window = getActiveWindow() {
-            let isAlwaysOnTop = window.level == .floating
-            window.level = isAlwaysOnTop ? .normal : .floating
-            print("Always on top: \(!isAlwaysOnTop)")
+            var title: CFTypeRef?
+            AXUIElementCopyAttributeValue(window, kAXTitleAttribute as CFString, &title)
+            if let windowTitle = title as? String {
+                print("Active window: \(windowTitle)")
+                // Note: You can't directly set window.level for AXUIElement
+                // You'll need to use a different approach to set "always on top"
+            } else {
+                print("Active window found, but couldn't get title")
+            }
         } else {
-            print("no active window just yet")
+            print("No active window found")
         }
     }
 
-    func getActiveWindow() -> NSWindow? {
-        // Implement logic to get the active window
-        // This will require additional permissions and possibly private APIs
-        return nil
+    func getActiveWindow() -> AXUIElement? {
+        let systemWideElement = AXUIElementCreateSystemWide()
+
+        var activeApp: AnyObject?
+        let error = AXUIElementCopyAttributeValue(
+            systemWideElement, kAXFocusedApplicationAttribute as CFString, &activeApp)
+
+        guard error == .success else {
+            print("Error getting active application: \(error)")
+            return nil
+        }
+
+        var focusedWindow: AnyObject?
+        let windowError = AXUIElementCopyAttributeValue(
+            activeApp as! AXUIElement, kAXFocusedWindowAttribute as CFString, &focusedWindow)
+
+        guard windowError == .success, let window = focusedWindow else {
+            print("Error getting focused window: \(windowError)")
+            return nil
+        }
+
+        return (window as! AXUIElement)
+    }
+
+    func checkAccessibilityPermissions() {
+        let options: NSDictionary = [
+            kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true
+        ]
+        let accessibilityEnabled = AXIsProcessTrustedWithOptions(options)
+
+        if !accessibilityEnabled {
+            print("Accessibility permissions are required for this app to function properly.")
+        }
     }
 }
 
