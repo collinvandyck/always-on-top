@@ -11,4 +11,5 @@ clicked, will toggle the "always on top" property of the currently active window
 # Todos:
 
 - use https://github.com/jahwag/ClaudeSync to automatically sync project files to claude.ai.
+- https://github.com/bob6664569/claude-sync: might actually work as ^^ does not.
 
