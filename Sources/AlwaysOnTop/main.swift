@@ -29,22 +29,19 @@ class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     @objc func toggleAlwaysOnTop() {
-        if let window = getActiveWindow() {
-            var title: CFTypeRef?
-            AXUIElementCopyAttributeValue(window, kAXTitleAttribute as CFString, &title)
-            if let windowTitle = title as? String {
-                print("Active window: \(windowTitle)")
-                // Note: You can't directly set window.level for AXUIElement
-                // You'll need to use a different approach to set "always on top"
-            } else {
-                print("Active window found, but couldn't get title")
-            }
+        print("toggleAlwaysOnTop")
+        print("Get active window extra...")
+        if let (win, info) = getActiveWindowExtra() {
+            print("win : \(win)")
+            print("info: \(info)")
+
+            // TODO: toggle always on top
         } else {
-            print("No active window found")
+            print("No active window found in extras")
         }
     }
 
-    func getActiveWindow() -> AXUIElement? {
+    func getActiveWindowExtra() -> (AXUIElement, String)? {
         let systemWideElement = AXUIElementCreateSystemWide()
 
         var activeApp: AnyObject?
@@ -56,6 +53,11 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return nil
         }
 
+        var appName: CFTypeRef?
+        AXUIElementCopyAttributeValue(
+            activeApp as! AXUIElement, kAXTitleAttribute as CFString, &appName)
+        let applicationName = (appName as? String) ?? "Unknown"
+
         var focusedWindow: AnyObject?
         let windowError = AXUIElementCopyAttributeValue(
             activeApp as! AXUIElement, kAXFocusedWindowAttribute as CFString, &focusedWindow)
@@ -65,7 +67,12 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             return nil
         }
 
-        return (window as! AXUIElement)
+        var windowTitle: CFTypeRef?
+        AXUIElementCopyAttributeValue(
+            window as! AXUIElement, kAXTitleAttribute as CFString, &windowTitle)
+        let title = (windowTitle as? String) ?? "Unknown"
+
+        return ((window as! AXUIElement), "\(applicationName): \(title)")
     }
 
     func checkAccessibilityPermissions() {
