@@ -41,6 +41,15 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         }
     }
 
+    func isAlwaysOnTop(_ window: AXUIElement) -> Bool {
+        var value: AnyObject?
+        let err = AXUIElementCopyAttributeValue(window, "AXSubrole" as CFString, &value)
+        if err == .success, let subrole = value as? String {
+            return subrole == "AXSystemFloatingWindow"
+        }
+        return false
+    }
+
     func getActiveWindowExtra() -> (AXUIElement, String)? {
         let systemWideElement = AXUIElementCreateSystemWide()
 
